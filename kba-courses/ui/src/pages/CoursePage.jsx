@@ -1,40 +1,34 @@
-import React,{useState,useEffect} from 'react'
-//import Navbar from '../components/Navbar'
+import React, {useEffect, useState} from 'react'
 import MainLayout from '../layouts/Mainlayout'
 import bannerImg from '../assets/images/banner-kba.png'
-import {useParams, Link} from 'react-router-dom'
-import coursesData from '../data/courses.json'
+import {useParams, Link, useLoaderData, useNavigate} from 'react-router-dom'
 import NotFound from './NotFound'
+import getUserType from '../utils/Auth'
 
 const CoursePage = () => {
   const {id} = useParams();
-  const [course,setCourse] = useState(null);
-  const [loading, setLoading]= useState(true);
+  const course = useLoaderData();
+  const navigate = useNavigate();
+  const userType = getUserType();
 
-  // const course = coursesData.find((course)=>course.courseId===id);
-  useEffect(()=>{
-    const fetchCourse = async () =>{
-      try{
-        const res = await fetch(`http://localhost:5000/courses/${id}`);
-        const data = await res.json();
-        setCourse(data)
-      } catch(error){
-      console.log("Error fetching courses:",error);
-      
-      } finally{
-        setLoading(false)
-      }
-    } 
-    fetchCourse();
-  },[id]);
+  const deleteCourse = async () => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this course?');
+    if(!confirmDelete) return;
 
-  if(loading){
-    return(
-      <MainLayout>
-        <div className='text-center my-10'>Loading...</div>
-      </MainLayout>
-    )
+    const res = await fetch(`/api/courses/${id}`,{
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if(res.ok){
+      navigate('/courses');
+    } else {
+      alert('Error deleting course.');
+    }
+
   }
+
+  
+
 
   if(!course){
     return(
@@ -45,7 +39,7 @@ const CoursePage = () => {
   }
 
   return (
-    <MainLayout>
+    
     <div className="bg-white text-gray-900 mb-10 pb-10">   
     <div className="max-w-4xl mx-auto p-5 ">
       
@@ -108,19 +102,32 @@ const CoursePage = () => {
         </div>
       </div>
     </div>
-    <div className="flex flex-row justify-end gap-4 mr-[205px] ">
+    { userType === 'admin' &&
+    (<div className="flex flex-row justify-end gap-4 mr-[205px] ">
       <Link 
         to={`/edit-course/${course.courseId}`}
        className="flex bg-blue-500 hover:bg-blue-600 text-white font-bold  rounded-full h-10 w-32 focus:outline-none focus:shadow-outline justify-center items-center">Edit Course</Link>
-      <a  className="flex bg-red-500 hover:bg-red-600 text-white font-bold  rounded-full h-10 w-32 focus:outline-none focus:shadow-outline  justify-center items-center">Remove Course</a>
+      <button  className="flex bg-red-500 hover:bg-red-600 text-white font-bold  rounded-full h-10 w-32 focus:outline-none focus:shadow-outline  justify-center items-center
+        " onClick ={deleteCourse}
+      >Remove Course</button>
      
       </div>
+     )}
   </div>
 
-    </MainLayout>
-    
+       
     
   )
 }
 
-export default CoursePage
+const courseLoader = async ({params}) => {
+  const res = await fetch(`/api/courses/${params.id}`,{
+    credentials: 'include',
+  });
+  if(!res.ok){
+    throw new Response('Course not found', {status:404});
+  } 
+  return res.json();
+}
+
+export { CoursePage as default, courseLoader}

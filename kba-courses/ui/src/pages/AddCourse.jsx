@@ -26,7 +26,7 @@ description,
 price
     }
     try{
-const res = await fetch('http://localhost:5000/courses',{
+const res = await fetch('/api/courses',{
   method:"POST",
   headers:{'Content-Type':'application/json'},
   body:JSON.stringify(newCourse)
@@ -67,7 +67,7 @@ console.log('Error adding course');
   // }
 
   return (
-    <MainLayout>
+    // <MainLayout>
     <section className="bg-white mb-20">
     <div className="container m-auto max-w-2xl py-2">
       <div className="bg-purple-100 px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0">
@@ -186,7 +186,7 @@ console.log('Error adding course');
       </div>
     </div>
   </section>
-    </MainLayout>
+    // </MainLayout>
   )
 }
 

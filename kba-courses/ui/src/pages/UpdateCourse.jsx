@@ -1,96 +1,72 @@
-import React, { useState ,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/Mainlayout';
 // import coursesData from '../data/courses.json';
 
 const UpdateCourse = () => {
-  const { id } = useParams();
+  const {id} = useParams();
   const navigate = useNavigate();
-  // const existingCourse = coursesData.find((course) => course.courseId === id);
-  const [course, setCourse] = useState(null)
-  const [loading, setLoading]= useState(true)
+  const [course, setCourse] = useState(null);
+  const [loading,setLoading] = useState(true)
 
-  useEffect(()=>{
-    const fetchCourses = async () =>{
+  useEffect(() =>{
+    const fetchCourse = async () => {
       try{
-        const res = await fetch(`http://localhost:5000/courses/${id}`);
+        const res = await fetch(`/api/courses/${id}`);
         const data = await res.json();
-        setCourse(data)
+        setCourse(data);
       } catch(error){
-      console.log("Error fetching courses:",error);
-      
+        console.log('Error fetching courses:',error);
       } finally{
-        setLoading(false)
+        setLoading(false);
       }
-    } 
-    fetchCourses();
-  },[id]);
+    };
+    fetchCourse();
+  }, [id]);
 
-  const submitForm = async (e) =>{
-    e.preventDefault()
+  const submitForm = async (e) => {
+    e.preventDefault();
     try{
-      const res = await fetch(`http://localhost:5000/courses/${id}`,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(course),
+      const res = await fetch(`/api/courses/${id}`,{
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(course),
       });
       if(res.ok){
-        navigate(`course/${id}`)
-      } else{
-        console.log('Failed to updating course');
-        
+        navigate(`/course/${id}`);
+      }else{
+        console.error('Failed to load course');
       }
     } catch(error){
-      console.log('Error Updating course',error);
-      
+      console.error('Error Updating Course',error);
     }
   }
-
-  if(loading){
-    return(
-      <MainLayout>
-        <div className='text-center mt-10'>Loading...</div>
-      </MainLayout>
-    )
-  }
-
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setCourse((prevCourse) => ({
+ 
+  const handleChange = (e) =>{
+    const {name,value} = e.target;
+    setCourse((prevCourse)=>({
       ...prevCourse,
-      [name]: value,
+        [name]:value,
     }));
-  };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   // Simulate updating the course in coursesData
-  //   const index = coursesData.findIndex((c) => c.courseId === id);
-  //   if (index !== -1) {
-  //     coursesData[index] = course;
-  //   }
-  //   navigate(`/course/${id}`);
-  // };
-
-  if(loading){
-    return(
-      <MainLayout>
-        <div className='text-center mt-10'>Loading...</div>
-      </MainLayout>
-    )
   }
 
-  if (!course) {
-    return (
-      <MainLayout>
-        <div className="text-center mt-10">Course not found</div>
-      </MainLayout>
-    );
-  }
-
+ if(loading){
   return (
     <MainLayout>
+      <div className='text-center mt-10'>Loading...</div>
+    </MainLayout>
+  );
+ }
+
+if(!course){
+  return(
+    <MainLayout>
+      <div className='text-center mt-10'>Course Not Found</div>
+    </MainLayout>
+  );
+}
+  return (
+   
     <section className="bg-white mb-20">
   <div className="container m-auto max-w-2xl py-2">
     <div className="bg-purple-100 px-6 py-8 mb-4 shadow-md rounded-md border m-4 md:m-0">
@@ -112,6 +88,7 @@ const UpdateCourse = () => {
             required
             value={course.title}
             onChange={handleChange}
+  
           />
         </div>
 
@@ -131,6 +108,7 @@ const UpdateCourse = () => {
             required
             value={course.type}
             onChange={handleChange}
+      
           >
             <option value="Self-Paced">Self-Paced</option>
             <option value="Instructor-Led">Instructor-Led</option>
@@ -153,6 +131,7 @@ const UpdateCourse = () => {
             placeholder="add a short course description"
             value={course.description}
             onChange={handleChange}
+        
           ></textarea>
         </div>
 
@@ -170,6 +149,7 @@ const UpdateCourse = () => {
             required
             value={course.price}
             onChange={handleChange}
+         
           >
             <option value="Rs.5000">Rs.5000</option>
             <option value="Rs.3500">Rs.3500</option>
@@ -189,8 +169,8 @@ const UpdateCourse = () => {
     </div>
   </div>
 </section>
-</MainLayout>
-  );
-};
 
-export default UpdateCourse;
+  )
+}
+
+export default UpdateCourse
